@@ -1,11 +1,15 @@
 package br.com.oba.axe.task_manager.application.rest;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import br.com.oba.axe.task_manager.application.request.TaskRequestDTO;
 import br.com.oba.axe.task_manager.application.response.TaskResponseDTO;
 import br.com.oba.axe.task_manager.aspect.annotation.Logifier;
 import br.com.oba.axe.task_manager.domain.Task;
 import br.com.oba.axe.task_manager.domain.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,20 +40,26 @@ public class TaskController {
                         .title(request.getTitle())
                         .build()
         ));
+        addSelfLink(taskResponse.getId(), taskResponse);
         return ResponseEntity.ok(taskResponse);
     }
 
     @GetMapping("/")
     @Logifier
-    public ResponseEntity<List<TaskResponseDTO>> findAll() {
+    public ResponseEntity<CollectionModel<TaskResponseDTO>> findAll() {
         var tasks = service.findAll().stream().map(TaskResponseDTO::new).toList();
-        return ResponseEntity.ok(tasks);
+        
+        tasks.forEach(t -> addSelfLink(t.getId(), t));
+        
+        var link = linkTo(TaskController.class).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(tasks, link));
     }
 
     @GetMapping("/{id}")
     @Logifier
     public ResponseEntity<TaskResponseDTO> findById(@PathVariable("id") Long id) {
         var task = new TaskResponseDTO(service.findById(id));
+        addSelfLink(id, task);
         return ResponseEntity.ok(task);
     }
 
@@ -93,4 +103,9 @@ public class TaskController {
         service.delete(id);
         return ResponseEntity.ok().build();
     }
+    
+    private void addSelfLink(Long id, TaskResponseDTO dto) {
+    	dto.add(linkTo(methodOn(TaskController.class).findById(id)).withSelfRel());
+    }
+    
 }
