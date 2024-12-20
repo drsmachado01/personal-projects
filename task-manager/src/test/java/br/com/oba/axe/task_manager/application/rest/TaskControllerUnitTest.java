@@ -63,6 +63,106 @@ class TaskControllerUnitTest {
     }
 
     @Test
+    void testGetByStatus() {
+        List<Task> theList = createListOfTasks();
+        Task theTask = theList.get(0);
+        when(service.findByStatus("CREATED")).thenReturn(theList);
+
+        ResponseEntity<List<TaskResponseDTO>> response = controller.findByStatus("CREATED");
+
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<TaskResponseDTO> tasks = response.getBody();
+        assertEquals(1, tasks.size());
+        TaskResponseDTO task = tasks.get(0);
+        assertEquals(theTask.getTitle(), task.getTitle());
+        assertEquals(theTask.getDescription(), task.getDescription());
+        assertEquals(theTask.getStatus(), task.getStatus());
+        assertEquals(theTask.getCreationDate(), task.getCreationDate());
+        assertEquals(theTask.getExecutionDate(), task.getExecutionDate());
+    }
+
+    @Test
+    void testGetByStatusEmpty() {
+        when(service.findByStatus("CREATED")).thenThrow(new DomainException("No tasks found"));
+        try {
+            controller.findByStatus("CREATED");
+        } catch (DomainException e) {
+            assertEquals("No tasks found", e.getMessage());
+        }
+    }
+
+    @Test
+    void testGetByCreationDate() {
+    	LocalDateTime start = LocalDateTime.now();
+    	LocalDateTime end = start.plusDays(1L);
+        List<Task> theList = createListOfTasks();
+        Task theTask = theList.get(0);
+        when(service.findByCreationDate(start, end)).thenReturn(theList);
+
+        ResponseEntity<List<TaskResponseDTO>> response = controller.findByCreationDate(start, end);
+
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<TaskResponseDTO> tasks = response.getBody();
+        assertEquals(1, tasks.size());
+        TaskResponseDTO task = tasks.get(0);
+        assertEquals(theTask.getTitle(), task.getTitle());
+        assertEquals(theTask.getDescription(), task.getDescription());
+        assertEquals(theTask.getStatus(), task.getStatus());
+        assertEquals(theTask.getCreationDate(), task.getCreationDate());
+        assertEquals(theTask.getExecutionDate(), task.getExecutionDate());
+    }
+
+    @Test
+    void testGetByCreationDateEmpty() {
+    	LocalDateTime start = LocalDateTime.now();
+    	LocalDateTime end = start.plusDays(1L);
+    	
+        when(service.findByCreationDate(start, end)).thenThrow(new DomainException("No tasks found"));
+        try {
+        	controller.findByCreationDate(start, end);
+        } catch (DomainException e) {
+            assertEquals("No tasks found", e.getMessage());
+        }
+    }
+
+    @Test
+    void testGetByExecutionnDate() {
+    	LocalDateTime start = LocalDateTime.now();
+    	LocalDateTime end = start.plusDays(1L);
+        List<Task> theList = createListOfTasks();
+        Task theTask = theList.get(0);
+        when(service.findByExecutionDate(start, end)).thenReturn(theList);
+
+        ResponseEntity<List<TaskResponseDTO>> response = controller.findByExecutionDate(start, end);
+
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<TaskResponseDTO> tasks = response.getBody();
+        assertEquals(1, tasks.size());
+        TaskResponseDTO task = tasks.get(0);
+        assertEquals(theTask.getTitle(), task.getTitle());
+        assertEquals(theTask.getDescription(), task.getDescription());
+        assertEquals(theTask.getStatus(), task.getStatus());
+        assertEquals(theTask.getCreationDate(), task.getCreationDate());
+        assertEquals(theTask.getExecutionDate(), task.getExecutionDate());
+    }
+
+    @Test
+    void testGetByExecutionnDateEmpty() {
+    	LocalDateTime start = LocalDateTime.now();
+    	LocalDateTime end = start.plusDays(1L);
+    	
+        when(service.findByExecutionDate(start, end)).thenThrow(new DomainException("No tasks found"));
+        try {
+        	controller.findByExecutionDate(start, end);
+        } catch (DomainException e) {
+            assertEquals("No tasks found", e.getMessage());
+        }
+    }
+
+    @Test
     void testGetAllNull() {
         when(service.findAll()).thenThrow(new DomainException("No tasks found"));
         try {
