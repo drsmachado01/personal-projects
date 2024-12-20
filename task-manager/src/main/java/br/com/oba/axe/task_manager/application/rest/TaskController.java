@@ -1,6 +1,7 @@
 package br.com.oba.axe.task_manager.application.rest;
 
 import br.com.oba.axe.task_manager.application.request.TaskRequestDTO;
+import br.com.oba.axe.task_manager.application.response.TaskResponseDTO;
 import br.com.oba.axe.task_manager.aspect.annotation.Logifier;
 import br.com.oba.axe.task_manager.domain.Task;
 import br.com.oba.axe.task_manager.domain.service.TaskService;
@@ -24,8 +25,8 @@ public class TaskController {
 
     @PostMapping("/")
     @Logifier
-    public ResponseEntity<Task> save(@RequestBody TaskRequestDTO request) {
-        return ResponseEntity.ok(service.save(
+    public ResponseEntity<TaskResponseDTO> save(@RequestBody TaskRequestDTO request) {
+        var taskResponse = new TaskResponseDTO(service.save(
                 Task.builder()
                         .id(request.getId())
                         .creationDate(request.getCreationDate())
@@ -35,49 +36,55 @@ public class TaskController {
                         .title(request.getTitle())
                         .build()
         ));
+        return ResponseEntity.ok(taskResponse);
     }
 
     @GetMapping("/")
     @Logifier
-    public ResponseEntity<List<Task>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<TaskResponseDTO>> findAll() {
+        var tasks = service.findAll().stream().map(TaskResponseDTO::new).toList();
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/{id}")
     @Logifier
-    public ResponseEntity<Task> findById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<TaskResponseDTO> findById(@PathVariable("id") Long id) {
+        var task = new TaskResponseDTO(service.findById(id));
+        return ResponseEntity.ok(task);
     }
 
     @GetMapping("/status/{status}")
     @Logifier
-    public ResponseEntity<List<Task>> findByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(service.findByStatus(status));
+    public ResponseEntity<List<TaskResponseDTO>> findByStatus(@PathVariable String status) {
+        var tasks = service.findByStatus(status).stream().map(TaskResponseDTO::new).toList();
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/creationDate/{start}/{end}")
     @Logifier
-    public ResponseEntity<List<Task>> findByCreationDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
-        return ResponseEntity.ok(service.findByCreationDate(start, end));
+    public ResponseEntity<List<TaskResponseDTO>> findByCreationDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
+        var tasks = service.findByCreationDate(start, end).stream().map(TaskResponseDTO::new).toList();
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/executionDate/{start}/{end}")
     @Logifier
-    public ResponseEntity<List<Task>> findByExecutionDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
-        return ResponseEntity.ok(service.findByExecutionDate(start, end));
+    public ResponseEntity<List<TaskResponseDTO>> findByExecutionDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
+        var tasks = service.findByExecutionDate(start, end).stream().map(TaskResponseDTO::new).toList();
+        return ResponseEntity.ok(tasks);
     }
 
     @PutMapping("/{id}")
     @Logifier
-    public ResponseEntity<Task> update(@PathVariable("id") Long id, @RequestBody TaskRequestDTO request) {
-        return ResponseEntity.ok(service.update(id, Task.builder()
+    public ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskRequestDTO request) {
+        return ResponseEntity.ok(new TaskResponseDTO(service.update(id, Task.builder()
                 .id(request.getId())
                 .creationDate(request.getCreationDate())
                 .description(request.getDescription())
                 .executionDate(request.getExecutionDate())
                 .status(request.getStatus())
                 .title(request.getTitle())
-                .build()));
+                .build())));
     }
 
     @DeleteMapping("/{id}")
