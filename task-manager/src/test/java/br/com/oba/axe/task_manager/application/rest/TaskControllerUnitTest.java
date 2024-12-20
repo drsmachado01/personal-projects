@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,11 +40,11 @@ class TaskControllerUnitTest {
         Task theTask = theList.get(0);
         when(service.findAll()).thenReturn(theList);
 
-        ResponseEntity<List<TaskResponseDTO>> response = controller.findAll();
+        ResponseEntity<CollectionModel<TaskResponseDTO>> response = controller.findAll();
 
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<TaskResponseDTO> tasks = response.getBody();
+        List<TaskResponseDTO> tasks = new ArrayList<TaskResponseDTO>(response.getBody().getContent());
         assertEquals(1, tasks.size());
         TaskResponseDTO task = tasks.get(0);
         assertEquals(theTask.getTitle(), task.getTitle());
@@ -68,11 +70,11 @@ class TaskControllerUnitTest {
         Task theTask = theList.get(0);
         when(service.findByStatus("CREATED")).thenReturn(theList);
 
-        ResponseEntity<List<TaskResponseDTO>> response = controller.findByStatus("CREATED");
+        ResponseEntity<CollectionModel<TaskResponseDTO>> response = controller.findByStatus("CREATED");
 
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<TaskResponseDTO> tasks = response.getBody();
+        List<TaskResponseDTO> tasks = new ArrayList<TaskResponseDTO>(response.getBody().getContent());
         assertEquals(1, tasks.size());
         TaskResponseDTO task = tasks.get(0);
         assertEquals(theTask.getTitle(), task.getTitle());
@@ -100,11 +102,11 @@ class TaskControllerUnitTest {
         Task theTask = theList.get(0);
         when(service.findByCreationDate(start, end)).thenReturn(theList);
 
-        ResponseEntity<List<TaskResponseDTO>> response = controller.findByCreationDate(start, end);
+        ResponseEntity<CollectionModel<TaskResponseDTO>> response = controller.findByCreationDate(start, end);
 
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<TaskResponseDTO> tasks = response.getBody();
+        List<TaskResponseDTO> tasks = new ArrayList<TaskResponseDTO>(response.getBody().getContent());
         assertEquals(1, tasks.size());
         TaskResponseDTO task = tasks.get(0);
         assertEquals(theTask.getTitle(), task.getTitle());
@@ -135,11 +137,11 @@ class TaskControllerUnitTest {
         Task theTask = theList.get(0);
         when(service.findByExecutionDate(start, end)).thenReturn(theList);
 
-        ResponseEntity<List<TaskResponseDTO>> response = controller.findByExecutionDate(start, end);
+        ResponseEntity<CollectionModel<TaskResponseDTO>> response = controller.findByExecutionDate(start, end);
 
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<TaskResponseDTO> tasks = response.getBody();
+        List<TaskResponseDTO> tasks = new ArrayList<TaskResponseDTO>(response.getBody().getContent());
         assertEquals(1, tasks.size());
         TaskResponseDTO task = tasks.get(0);
         assertEquals(theTask.getTitle(), task.getTitle());

@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -65,36 +64,52 @@ public class TaskController {
 
     @GetMapping("/status/{status}")
     @Logifier
-    public ResponseEntity<List<TaskResponseDTO>> findByStatus(@PathVariable String status) {
+    public ResponseEntity<CollectionModel<TaskResponseDTO>> findByStatus(@PathVariable String status) {
         var tasks = service.findByStatus(status).stream().map(TaskResponseDTO::new).toList();
-        return ResponseEntity.ok(tasks);
+        
+        tasks.forEach(t -> addSelfLink(t.getId(), t));
+        
+        var link = linkTo(TaskController.class).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(tasks, link));
     }
 
     @GetMapping("/creationDate/{start}/{end}")
     @Logifier
-    public ResponseEntity<List<TaskResponseDTO>> findByCreationDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
+    public ResponseEntity<CollectionModel<TaskResponseDTO>> findByCreationDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
         var tasks = service.findByCreationDate(start, end).stream().map(TaskResponseDTO::new).toList();
-        return ResponseEntity.ok(tasks);
+        
+        tasks.forEach(t -> addSelfLink(t.getId(), t));
+        
+        var link = linkTo(TaskController.class).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(tasks, link));
     }
 
     @GetMapping("/executionDate/{start}/{end}")
     @Logifier
-    public ResponseEntity<List<TaskResponseDTO>> findByExecutionDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
+    public ResponseEntity<CollectionModel<TaskResponseDTO>> findByExecutionDate(@PathVariable LocalDateTime start, @PathVariable LocalDateTime end) {
         var tasks = service.findByExecutionDate(start, end).stream().map(TaskResponseDTO::new).toList();
-        return ResponseEntity.ok(tasks);
+        
+        tasks.forEach(t -> addSelfLink(t.getId(), t));
+        
+        var link = linkTo(TaskController.class).withSelfRel();
+        return ResponseEntity.ok(CollectionModel.of(tasks, link));
     }
 
     @PutMapping("/{id}")
     @Logifier
     public ResponseEntity<TaskResponseDTO> update(@PathVariable("id") Long id, @RequestBody TaskRequestDTO request) {
-        return ResponseEntity.ok(new TaskResponseDTO(service.update(id, Task.builder()
+        var taskResponse = new TaskResponseDTO(service.update(id, Task.builder()
                 .id(request.getId())
                 .creationDate(request.getCreationDate())
                 .description(request.getDescription())
                 .executionDate(request.getExecutionDate())
                 .status(request.getStatus())
                 .title(request.getTitle())
-                .build())));
+                .build()));
+        
+        addSelfLink(id, taskResponse);
+        
+    	return ResponseEntity.ok(taskResponse);
     }
 
     @DeleteMapping("/{id}")
