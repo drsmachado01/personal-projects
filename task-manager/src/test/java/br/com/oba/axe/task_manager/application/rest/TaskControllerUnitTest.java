@@ -152,7 +152,6 @@ class TaskControllerUnitTest {
 
     @Test
     void testDelete() {
-        Task theTask = createTask();
         doNothing().when(service).delete(any(Long.class));
         ResponseEntity<Void> response = controller.delete(1L);
         verify(service).delete(any(Long.class));

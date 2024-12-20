@@ -38,8 +38,8 @@ public class DomainTaskService implements TaskService {
     @Override
     @Logifier
     public void delete(Long id) {
-        repository.findById(id).orElseThrow(() -> new DomainException("Task not found"));
-        repository.deleteById(id);
+        var task = repository.findById(id).orElseThrow(() -> new DomainException("Task not found"));
+        repository.delete(task);
     }
 
     @Override
